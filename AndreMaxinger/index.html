@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Light switch - EDA with CQRS</title>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                text-align: center;
+                padding: 50px;
+            }
+            #indicator {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                border: 3px solid black;
+                margin: 50px auto;
+                transition: background-color 0.3s ease;
+            }
+            .on {
+                background-color: yellow;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Light switch - EDA with CQRS</h1>
+        <button id="lightSwitch">Turn On</button>
+        <div id="indicator"></div>
+
+        <script>
+            const COMMAND_API = 'http://localhost:3001/commands/toggle-light';
+            const QUERY_API = 'http://localhost:3002/queries/light-state';
+
+            const lightSwitch = document.getElementById("lightSwitch");
+            const indicator = document.getElementById("indicator");
+
+            async function requestStop() {
+                try {
+                    await fetch(COMMAND_API, { method: 'POST' });
+                } catch (err) {
+                    console.warn("Producer not available");
+                }
+            }
+
+            async function checkStop() {
+                try {
+                    const res = await fetch(QUERY_API);
+                    const data = await res.json();
+
+                    if (data.on) {
+                        indicator.classList.add("on");
+                        lightSwitch.innerText = "Turn Off"
+                    } else {
+                        indicator.classList.remove("on");
+                        lightSwitch.innerText = "Turn On"
+                    }
+                } catch (err) {
+                    console.warn("Consumer not available");
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+
+            lightSwitch.addEventListener("click", requestStop)
+            setInterval(checkStop, 500);
+        </script>
+    </body>
+</html>

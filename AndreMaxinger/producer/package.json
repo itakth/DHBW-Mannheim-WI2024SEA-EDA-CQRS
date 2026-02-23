@@ -1,0 +1,9 @@
+{
+    "name": "producer",
+    "main": "index.js",
+    "dependencies": {
+        "amqplib": "^0.10.9",
+        "express": "^5.2.1",
+        "cors": "^2.8.6"
+    }
+}
